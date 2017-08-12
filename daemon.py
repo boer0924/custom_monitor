@@ -9,7 +9,12 @@ import psutil
 
 class DaemonBase:
     """Daemon Base Class"""
-    def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+
+    def __init__(self,
+                 pidfile,
+                 stdin='/dev/null',
+                 stdout='/dev/null',
+                 stderr='/dev/null'):
         self.pidfile = pidfile
         self.stdin = stdin
         self.stdout = stdout
@@ -18,7 +23,7 @@ class DaemonBase:
     def _daemonize(self):
         if os.path.exists(self.pidfile):
             raise RuntimeError('Already running.')
-        
+
         try:
             if os.fork() > 0:
                 raise SystemExit(0)
@@ -49,7 +54,7 @@ class DaemonBase:
             print(os.getpid(), file=f)
 
         atexit.register(lambda: os.remove(self.pidfile))
-        
+
         signal.signal(signal.SIGTERM, self.__sigterm_handler)
 
     @staticmethod
@@ -82,27 +87,4 @@ class DaemonBase:
         self.start()
 
 
-class MyDaemon(DaemonBase):
-    """Real Daemon class"""
-    def run(self):
-        sys.stdout.write('Daemon started with pid %s\n' % os.getpid())
-        while 1:
-            sys.stdout.write('Hello World Daemon! %s\n' % time.ctime())
-            cpu_percent = psutil.cpu_percent()
-            print(str(cpu_percent) + '%')
-            time.sleep(60)
-
-if __name__ == '__main__':
-    md = MyDaemon('/tmp/test_mydaemon.pid', stdout='/tmp/test_daemon.log', stderr='/tmp/test_daemon.log')
-    if len(sys.argv) != 2:
-        print('Usage: %s [start|stop|restart]' % sys.argv[0], file=sys.stderr)
-        raise SystemExit(1)
-    if sys.argv[1] == 'start':
-        md.start()
-    elif sys.argv[1] == 'stop':
-        md.stop()
-    elif sys.argv[1] == 'restart':
-        md.restart()
-    else:
-        print('Unkown command %s' % sys.argv[1], file=sys.stderr)
-        raise SystemExit(1)
+__all__ = ['DaemonBase']

@@ -59,21 +59,24 @@ def get_disk_usage():
 
 
 # Network
-def get_network_traffic():
-    nics_traffics = []
-    for k, v in psutil.net_io_counters(pernic=True).items():
-        nics_traffics.append({
-            k: {
-                'bytes_sent': v.bytes_sent,
-                'bytes_recv': v.bytes_recv,
-                'packets_sent': v.packets_sent,
-                'packets_recv': v.packets_recv
+def get_net_io_counters():
+    return psutil.net_io_counters(pernic=True)
+
+def get_network_traffic(pnic_before, pnic_after):
+    pnics_traffics = []
+    for nic in pnic_after.keys():
+        bytes_sent = pnic_after[nic].bytes_sent - pnic_before[nic].bytes_sent
+        bytes_recv = pnic_after[nic].bytes_recv - pnic_before[nic].bytes_recv
+        pnics_traffics.append({
+            nic: {
+                'bytes_sent': bytes2human(bytes_sent),
+                'bytes_recv': bytes2human(bytes_recv)
             }
         })
-    return nics_traffics
+    return pnics_traffics
 
 
-print(get_cpu_percent())
-print(get_mem_usage())
-print(get_disk_usage())
-print(get_network_traffic())
+__all__ = [
+    'get_cpu_percent', 'get_mem_usage', 'get_disk_usage',
+    'get_net_io_counters', 'get_network_traffic'
+]
