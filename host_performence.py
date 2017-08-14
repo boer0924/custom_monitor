@@ -21,7 +21,7 @@ def bytes2human(n):
 
 # CPU
 def get_cpu_percent():
-    return {'percent': str(psutil.cpu_percent(interval=1)) + ' %'}
+    return {'percent': str(psutil.cpu_percent()) + ' %'}
 
 
 # Memory
