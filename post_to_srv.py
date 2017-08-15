@@ -76,10 +76,14 @@ class MyDaemon(DaemonBase):
             current_mem = p.memory_percent()
             print(current_cpu, current_mem)
             if p.is_running() and (current_mem > 1 or current_cpu > 1):
+                p.kill()
                 with open('/tmp/test_daemon.log', 'a') as f:
                     f.write('CPU: %s - MEM: %s - at: %s' %
                             (current_cpu, current_mem, time.ctime()))
-            time.sleep(3*60)
+                _p = Process(target=self.tasks, daemon=True)
+                _p.start()
+                p = psutil.Process(_p.pid)
+            time.sleep(3 * 60)
 
 
 if __name__ == '__main__':
