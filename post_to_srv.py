@@ -2,9 +2,12 @@ import os
 import sys
 import time
 import json
+import socket
 from urllib import request
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Process
+
+import psutil
 
 from daemon import DaemonBase
 from host_performence import get_cpu_percent
@@ -26,6 +29,13 @@ class MyDaemon(DaemonBase):
         self.url = url
         super().__init__(pidfile, stdin, stdout, stderr)
 
+    @staticmethod
+    def get_host_addrs(family):
+        for nic, snics in psutil.net_if_addrs().items():
+            for snic in snics:
+                if snic.family == family:
+                    yield (nic, snic.address)
+
     def do_post(self, params):
         data = json.dumps(params)
         headers = {'Content-Type': 'application/json'}
@@ -40,26 +50,36 @@ class MyDaemon(DaemonBase):
     def tasks(self):
         pnic_before = get_net_io_counters()
         while 1:
-            # sys.stdout.write('Hello World Daemon! %s\n' % time.ctime())
+            # sys.stdout.write('Hello World! %s\n' % time.ctime())
             time.sleep(60)
             pnic_after = get_net_io_counters()
-            results = [
-                get_cpu_percent(), get_mem_usage(), get_disk_usage(),
-                get_network_traffic(pnic_before, pnic_after)
-            ]
+            send_datas = {
+                'ip_addr': ''.join([
+                    n[1] for n in self.get_host_addrs(socket.AF_INET)
+                    if n[0] == 'wlp2s0'
+                ]),
+                'cpu_perf': get_cpu_percent(),
+                'mem_perf': get_mem_usage(),
+                'disk_perf': get_disk_usage(),
+                'net_perf': get_network_traffic(pnic_before, pnic_after)
+            }
+            self.do_post(send_datas)
             pnic_before = get_net_io_counters()
-            with ThreadPoolExecutor(max_workers=len(results)) as executor:
-                executor.map(self.do_post, results)
 
     def run(self):
         sys.stdout.write('Daemon started with pid %s\n' % os.getpid())
-        import psutil
         _p = Process(target=self.tasks, daemon=True)
         _p.start()
         p = psutil.Process(_p.pid)
-        # if something and p.is_running():
-        #     do_something
-        #     p.suspend()
+        while 1:
+            current_cpu = p.cpu_percent()
+            current_mem = p.memory_percent()
+            print(current_cpu, current_mem)
+            if p.is_running() and (current_mem > 1 or current_cpu > 1):
+                with open('/tmp/test_daemon.log', 'a') as f:
+                    f.write('CPU: %s - MEM: %s - at: %s' %
+                            (current_cpu, current_mem, time.ctime()))
+            time.sleep(3*60)
 
 
 if __name__ == '__main__':
