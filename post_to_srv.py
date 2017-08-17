@@ -46,7 +46,6 @@ class MyDaemon(DaemonBase):
     def tasks(self):
         pnic_before = get_net_io_counters()
         while 1:
-            # sys.stdout.write('Hello World! %s\n' % time.ctime())
             time.sleep(60)
             pnic_after = get_net_io_counters()
             send_datas = {
@@ -70,13 +69,15 @@ class MyDaemon(DaemonBase):
         while 1:
             current_cpu = p.cpu_percent()
             current_mem = p.memory_percent()
-            print(current_cpu, current_mem, time.ctime())
+            print(current_cpu, current_mem, time.ctime(), p.pid, p.ppid())
             if p.is_running() and (current_mem > 1 or current_cpu > 1):
-                p.kill()
+                p.terminate()
+                p.wait()
                 with open('/tmp/test_daemon.log', 'a') as f:
-                    f.write('CPU: %s - MEM: %s - at: %s' %
+                    f.write('CPU: %s - MEM: %s - at: %s\n' %
                             (current_cpu, current_mem, time.ctime()))
                 _p = Process(target=self.tasks, daemon=True)
                 _p.start()
+                sys.stdout.write('The subprocess restart pid %s\n' % _p.pid)                
                 p = psutil.Process(_p.pid)
             time.sleep(60)
