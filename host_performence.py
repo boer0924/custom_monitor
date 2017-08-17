@@ -1,5 +1,10 @@
 import psutil
 
+__all__ = [
+    'get_cpu_percent', 'get_mem_usage', 'get_disk_usage',
+    'get_net_io_counters', 'get_network_traffic'
+]
+
 
 def bytes2human(n):
     """ 
@@ -62,6 +67,7 @@ def get_disk_usage():
 def get_net_io_counters():
     return psutil.net_io_counters(pernic=True)
 
+
 def get_network_traffic(pnic_before, pnic_after):
     pnics_traffics = []
     for nic in pnic_after.keys():
@@ -74,9 +80,3 @@ def get_network_traffic(pnic_before, pnic_after):
             }
         })
     return pnics_traffics
-
-
-__all__ = [
-    'get_cpu_percent', 'get_mem_usage', 'get_disk_usage',
-    'get_net_io_counters', 'get_network_traffic'
-]

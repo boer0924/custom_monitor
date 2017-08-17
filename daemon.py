@@ -6,6 +6,8 @@ import signal
 
 import psutil
 
+__all__ = ['DaemonBase']
+
 
 class DaemonBase:
     """Daemon Base Class"""
@@ -85,6 +87,3 @@ class DaemonBase:
         self.stop()
         time.sleep(0.1)
         self.start()
-
-
-__all__ = ['DaemonBase']
