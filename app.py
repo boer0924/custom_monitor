@@ -2,14 +2,16 @@ import sys
 
 from post_to_srv import MyDaemon
 
+# Settings
+API_URL = 'http://127.0.0.1:5000/monitor'
+MONITOR_PORT = 'wlp2s0'
+PIDFILE = '/tmp/test_mydaemon.pid'
+LOGFILE = '/tmp/test_daemon.log'
+
 if len(sys.argv) != 2:
     print('Usage: %s [start|stop|restart]' % sys.argv[0], file=sys.stderr)
     raise SystemExit(1)
-md = MyDaemon(
-    'http://127.0.0.1:5000/monitor',
-    '/tmp/test_mydaemon.pid',
-    stdout='/tmp/test_daemon.log',
-    stderr='/tmp/test_daemon.log')
+md = MyDaemon(API_URL, MONITOR_PORT, PIDFILE, stdout=LOGFILE, stderr=LOGFILE)
 if sys.argv[1] == 'start':
     md.start()
 elif sys.argv[1] == 'stop':

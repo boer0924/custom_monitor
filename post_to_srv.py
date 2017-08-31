@@ -17,12 +17,14 @@ class MyDaemon(DaemonBase):
     """Real Daemon class"""
 
     def __init__(self,
-                 url,
+                 api_url,
+                 monitor_port,
                  pidfile,
                  stdin='/dev/null',
                  stdout='/dev/null',
                  stderr='/dev/null'):
-        self.url = url
+        self.api_url = api_url
+        self.monitor_port = monitor_port
         super().__init__(pidfile, stdin, stdout, stderr)
 
     @staticmethod
@@ -35,7 +37,7 @@ class MyDaemon(DaemonBase):
     def do_post(self, params):
         data = json.dumps(params)
         headers = {'Content-Type': 'application/json'}
-        req = request.Request(self.url, data.encode('utf-8'), headers=headers)
+        req = request.Request(self.api_url, data.encode('utf-8'), headers=headers)
         try:
             with request.urlopen(req, timeout=3) as resp:
                 return resp.status
@@ -51,7 +53,7 @@ class MyDaemon(DaemonBase):
             send_datas = {
                 'ip_addr': ''.join([
                     n[1] for n in self.get_host_addrs(socket.AF_INET)
-                    if n[0] == 'wlp2s0'
+                    if n[0] == self.monitor_port
                 ]),
                 'cpu_perf': get_cpu_percent(),
                 'mem_perf': get_mem_usage(),
