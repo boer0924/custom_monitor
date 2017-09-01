@@ -3,7 +3,7 @@ import sys
 import time
 import json
 import socket
-from urllib import request
+from urllib import request, parse
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Process
 
@@ -35,9 +35,8 @@ class MyDaemon(DaemonBase):
                     yield (nic, snic.address)
 
     def do_post(self, params):
-        data = json.dumps(params)
-        headers = {'Content-Type': 'application/json'}
-        req = request.Request(self.api_url, data.encode('utf-8'), headers=headers)
+        data = parse.urlencode([('data', params)])
+        req = request.Request(self.api_url, data=data.encode('utf-8'))
         try:
             with request.urlopen(req, timeout=3) as resp:
                 return resp.status
@@ -71,7 +70,7 @@ class MyDaemon(DaemonBase):
         while 1:
             current_cpu = p.cpu_percent()
             current_mem = p.memory_percent()
-            print(current_cpu, current_mem, time.ctime(), p.pid, p.ppid())
+            # print(current_cpu, current_mem, time.ctime(), p.pid, p.ppid())
             if p.is_running() and (current_mem > 1 or current_cpu > 1):
                 p.terminate()
                 p.wait()
@@ -80,6 +79,6 @@ class MyDaemon(DaemonBase):
                             (current_cpu, current_mem, time.ctime()))
                 _p = Process(target=self.tasks, daemon=True)
                 _p.start()
-                sys.stdout.write('The subprocess restart pid %s\n' % _p.pid)                
+                sys.stdout.write('The subprocess restart pid %s\n' % _p.pid)
                 p = psutil.Process(_p.pid)
             time.sleep(60)
