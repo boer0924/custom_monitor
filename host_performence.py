@@ -63,6 +63,12 @@ def get_disk_usage():
     return parts_usages
 
 
+def get_disk_speed():
+    disk_stat = psutil.disk_io_counters()
+    return (disk_stat.read_time + disk_stat.write_time) / (
+        disk_stat.read_count + disk_stat.write_count)
+
+
 # Network
 def get_net_io_counters():
     return psutil.net_io_counters(pernic=True)

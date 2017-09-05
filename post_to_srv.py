@@ -50,6 +50,7 @@ class MyDaemon(DaemonBase):
             time.sleep(60)
             pnic_after = get_net_io_counters()
             send_datas = {
+                'type': 8,
                 'ip_addr': ''.join([
                     n[1] for n in self.get_host_addrs(socket.AF_INET)
                     if n[0] == self.monitor_port
@@ -57,6 +58,7 @@ class MyDaemon(DaemonBase):
                 'cpu_perf': get_cpu_percent(),
                 'mem_perf': get_mem_usage(),
                 'disk_perf': get_disk_usage(),
+                'disk_speed': get_disk_speed(),
                 'net_perf': get_network_traffic(pnic_before, pnic_after)
             }
             self.do_post(send_datas)
