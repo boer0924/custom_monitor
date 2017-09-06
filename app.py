@@ -3,8 +3,10 @@ import sys
 from post_to_srv import MyDaemon
 
 # Settings
-API_URL = 'http://127.0.0.1:5000/monitor'
-MONITOR_PORT = 'wlp2s0'
+# API_URL = 'http://127.0.0.1:5000/monitor'
+# MONITOR_PORT = 'wlp2s0'
+API_URL = 'http://172.19.3.66:10081/collection'
+MONITOR_PORT = 'eth0'
 PIDFILE = '/tmp/test_mydaemon.pid'
 LOGFILE = '/tmp/test_daemon.log'
 

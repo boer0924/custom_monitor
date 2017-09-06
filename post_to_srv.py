@@ -35,8 +35,13 @@ class MyDaemon(DaemonBase):
                     yield (nic, snic.address)
 
     def do_post(self, params):
-        data = parse.urlencode([('data', params)])
-        req = request.Request(self.api_url, data=data.encode('utf-8'))
+        # Json Post
+        data = json.dumps(params)
+        headers = {'Content-Type': 'application/json'}
+        req = request.Request(self.api_url, data=data.encode('utf-8'), headers=headers)        
+        # Form Post eg. ?data=params&code=1
+        # data = parse.urlencode({'data': params})
+        # req = request.Request(self.api_url, data=data.encode('utf-8'))
         try:
             with request.urlopen(req, timeout=3) as resp:
                 return resp.status
