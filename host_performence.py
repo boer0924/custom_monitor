@@ -1,7 +1,7 @@
 import psutil
 
 __all__ = [
-    'get_cpu_percent', 'get_mem_usage', 'get_disk_usage',
+    'get_cpu_percent', 'get_mem_usage', 'get_disk_usage', 'get_disk_speed',
     'get_net_io_counters', 'get_network_traffic'
 ]
 
