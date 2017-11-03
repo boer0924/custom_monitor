@@ -35,15 +35,16 @@ class MyDaemon(DaemonBase):
                     yield (nic, snic.address)
 
     def do_post(self, params):
-        # Json Post
         data = json.dumps(params)
-        headers = {'Content-Type': 'application/json'}
-        req = request.Request(self.api_url, data=data.encode('utf-8'), headers=headers)        
+        # Json Post
+        # headers = {'Content-Type': 'application/json'}
+        # req = request.Request(self.api_url, data=data.encode('utf-8'), headers=headers)        
         # Form Post eg. ?data=params&code=1
-        # data = parse.urlencode({'data': params})
-        # req = request.Request(self.api_url, data=data.encode('utf-8'))
+        data = parse.urlencode({'data': data})
+        req = request.Request(self.api_url, data=data.encode('utf-8'))
         try:
             with request.urlopen(req, timeout=3) as resp:
+                # print(resp.read().decode('utf-8'))
                 return resp.status
         except Exception as e:
             with open('/tmp/test_daemon.err', 'a') as f:

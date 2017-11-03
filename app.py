@@ -5,10 +5,11 @@ from post_to_srv import MyDaemon
 # Settings
 # API_URL = 'http://127.0.0.1:5000/monitor'
 # MONITOR_PORT = 'wlp2s0'
-API_URL = 'http://172.19.3.66:10081/collection'
+# API_URL = 'http://172.19.3.66:10081/collection'
+API_URL = 'http://192.168.28.2:10081/collection'
 MONITOR_PORT = 'eth0'
-PIDFILE = '/tmp/test_mydaemon.pid'
-LOGFILE = '/tmp/test_daemon.log'
+PIDFILE = '/tmp/host_monitor_daemon.pid'
+LOGFILE = '/tmp/host_monitor.log'
 
 if len(sys.argv) != 2:
     print('Usage: %s [start|stop|restart]' % sys.argv[0], file=sys.stderr)
